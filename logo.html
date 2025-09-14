@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Zeno Logo Generator</title>
+
+<!-- Google Font (bold sans) -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* You can tweak these */
+    --bg: #475F94;       /* dusky blue */   /* alt: #5A86AD */
+    --fg: #F5F5F5;       /* dusky white */
+    --w: 1200;           /* width  for OG */
+    --h: 630;            /* height for OG */
+  }
+  body{margin:0; display:grid; place-items:center; min-height:100vh; background:#111; color:#fff; font-family:system-ui, sans-serif}
+  .card{background:#1b1b1b; padding:16px; border-radius:14px; box-shadow:0 10px 30px #0005; width:min(720px, 92vw)}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px}
+  button, input{padding:10px 14px; border-radius:10px; border:1px solid #333; background:#222; color:#eee}
+  input[type="color"]{padding:0; height:40px; width:56px}
+  canvas{width:100%; height:auto; background:#222; border-radius:10px}
+  small{opacity:.75}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="row">
+      <input id="text" value="Zeno" aria-label="Logo text">
+      <label>BG <input type="color" id="bg" value="#475F94"></label>
+      <label>FG <input type="color" id="fg" value="#F5F5F5"></label>
+      <label>Font px <input type="number" id="size" value="320" min="40" max="600"></label>
+      <button id="download">Download PNG</button>
+      <small>1200×630 (ideal OG size)</small>
+    </div>
+    <canvas id="c" width="1200" height="630"></canvas>
+  </div>
+
+<script>
+(async function () {
+  const c = document.getElementById('c');
+  const ctx = c.getContext('2d');
+
+  // Handle HiDPI for sharp export
+  const DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+  const W = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--w')) || 1200;
+  const H = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--h')) || 630;
+  c.width = W * DPR; c.height = H * DPR;
+  c.style.width = W + 'px'; c.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+  const $ = (id) => document.getElementById(id);
+  const controls = ['text','bg','fg','size'].map($);
+
+  async function draw() {
+    const text = $('text').value || 'Zeno';
+    const bg = $('bg').value || '#475F94';
+    const fg = $('fg').value || '#F5F5F5';
+    const size = Math.min(600, Math.max(40, parseInt($('size').value || 320)));
+
+    // background
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+    // text
+    ctx.fillStyle = fg;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `700 ${size}px "Poppins", system-ui, sans-serif`;
+    // subtle tracking
+    ctx.letterSpacing = '0px'; // supported in most modern browsers
+
+    // center text
+    ctx.fillText(text, W/2, H/2 + size*0.04);
+  }
+
+  // Wait for the Google Font to load before drawing
+  try {
+    await document.fonts.ready; // CSS Font Loading API
+  } catch(e) { /* ignore */ }
+
+  controls.forEach(el => el.addEventListener('input', draw));
+  await draw();
+
+  // Download as PNG (use toBlob if available; fallback to toDataURL)
+  document.getElementById('download').addEventListener('click', () => {
+    if (HTMLCanvasElement.prototype.toBlob) {
+      c.toBlob((blob) => {
+        const a = Object.assign(document.createElement('a'), { download: 'zeno-logo.png' });
+        a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
+      }, 'image/png');
+    } else {
+      const a = Object.assign(document.createElement('a'), { download: 'zeno-logo.png', href: c.toDataURL('image/png') });
+      a.click();
+    }
+  });
+})();
+</script>
+</body>
+</html>
