@@ -25,9 +25,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          # 👇 removed caching to avoid lockfile error
 
-      # --- build (tailwind + esbuild) ---
       - name: Install dependencies
         run: |
           npm init -y
@@ -46,7 +45,6 @@ jobs:
           test -f app.js || (echo "Missing app.js" && exit 1)
           test -f app.css || (echo "Missing app.css" && exit 1)
 
-      # --- pages packaging ---
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
