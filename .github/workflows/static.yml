@@ -27,6 +27,7 @@ jobs:
           node-version: 20
           cache: npm
 
+      # --- build (tailwind + esbuild) ---
       - name: Install dependencies
         run: |
           npm init -y
@@ -38,11 +39,16 @@ jobs:
       - name: Build JS (esbuild)
         run: npx esbuild app.jsx --bundle --minify --format=iife --outfile=app.js --jsx=automatic
 
-      - name: Check build output
+      - name: Verify build output
         run: |
           ls -la
-          if [ ! -f app.js ]; then echo "Error: app.js missing" && exit 1; fi
-          if [ ! -f app.css ]; then echo "Error: app.css missing" && exit 1; fi
+          test -f index.html || (echo "Missing index.html" && exit 1)
+          test -f app.js || (echo "Missing app.js" && exit 1)
+          test -f app.css || (echo "Missing app.css" && exit 1)
+
+      # --- pages packaging ---
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Disable Jekyll
         run: touch .nojekyll
