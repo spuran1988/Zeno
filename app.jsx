@@ -1,0 +1,224 @@
+import React, { useState, useMemo } from "react";
+import { createRoot } from "react-dom/client";
+
+function ZenoApp() {
+  const [route, setRoute] = useState("login");
+  const [theme, setTheme] = useState("light");
+  const [projectName, setProjectName] = useState("Zeno");
+  const [watchlist, setWatchlist] = useState([
+    { symbol: "SPY", name: "S&P 500 ETF", price: 556.21, change: 0.42 },
+    { symbol: "QQQ", name: "Nasdaq 100 ETF", price: 483.09, change: -0.15 },
+    { symbol: "BTC", name: "Bitcoin", price: 61234, change: 1.8 },
+    { symbol: "ETH", name: "Ethereum", price: 2725, change: -0.7 },
+  ]);
+  const [alerts] = useState([
+    { id: 1, text: "BTC drawdown risk > 12% in 2 weeks — propose hedge + DCA", severity: "high" },
+    { id: 2, text: "Rebalance drift 6.2% vs target — 1-tap fix available", severity: "med" },
+    { id: 3, text: "Tax-loss opportunity: QQQ lot from 2025-08-05", severity: "low" },
+  ]);
+
+  const nav = [
+    { id: "dashboard", label: "Dashboard", icon: "📊" },
+    { id: "portfolio", label: "Portfolio", icon: "💼" },
+    { id: "sim", label: "Simulations", icon: "🧠" },
+    { id: "taxret", label: "Tax & Retirement", icon: "🧾" },
+    { id: "alerts", label: "Alerts", icon: "⚡" },
+    { id: "settings", label: "Settings", icon: "⚙️" },
+  ];
+
+  const container = "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8";
+  const card = "rounded-2xl border border-gray-200 shadow-sm p-4 bg-white hover:shadow transition";
+
+  function chip(txt) {
+    return <span className="rounded-full border px-2 py-0.5 text-xs font-medium">{txt}</span>;
+  }
+  function switchTheme() { setTheme(theme === "light" ? "dark" : "light"); }
+  function fmt(n) { return typeof n === "number" ? n.toLocaleString() : n; }
+
+  function Header() {
+    return (
+      <header className="sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white border-b">
+        <div className={container + " flex items-center gap-3 py-3"}>
+          <button onClick={function(){ setRoute("dashboard"); }} className="text-xl md:text-2xl font-black tracking-tight">
+            <span className="inline-block mr-2 text-rose-700">Z</span>eno
+          </button>
+          <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
+            {chip("Personal AI Advisor")}
+            {chip("Hybrid: passive + active")}
+            {chip("Proactive alerts")}
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <button onClick={switchTheme} className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-50" title="Toggle theme">
+              {theme === "light" ? "🌞 Light" : "🌙 Dark"}
+            </button>
+            <button onClick={function(){ setRoute("settings"); }} className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-50">
+              Settings
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  function Sidebar() {
+    return (
+      <aside className="w-full md:w-64 border-r bg-gray-50/60 p-3 md:p-4">
+        <div className="space-y-1">
+          {nav.map(function(n){
+            return (
+              <button
+                key={n.id}
+                onClick={function(){ setRoute(n.id); }}
+                className={
+                  "w-full flex items-center gap-2 rounded-xl px-3 py-2 text-left hover:bg-white border " +
+                  (route === n.id ? "bg-white border-rose-200" : "border-transparent")
+                }
+              >
+                <span className="text-lg" aria-hidden>{n.icon}</span>
+                <span className="font-medium">{n.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-5">
+          <button onClick={function(){ setRoute("sim"); }} className="w-full rounded-xl bg-rose-600 text-white py-2.5 font-semibold shadow hover:bg-rose-700">
+            Proceed — Run Scenario
+          </button>
+        </div>
+      </aside>
+    );
+  }
+
+  function Kpi(props) {
+    return (
+      <div className={card}>
+        <div className="text-sm text-gray-500">{props.label}</div>
+        <div className="text-2xl font-bold">{props.value}</div>
+        {props.sub ? <div className="text-xs text-gray-400 mt-1">{props.sub}</div> : null}
+      </div>
+    );
+  }
+
+  function WatchRow(props) {
+    var row = props.row;
+    return (
+      <div
+        className="grid grid-cols-5 items-center gap-2 rounded-xl px-3 py-2 hover:bg-gray-50"
+        role="button"
+        onClick={function(){ alert("Open " + row.symbol + " details"); }}
+      >
+        <div className="font-mono">{row.symbol}</div>
+        <div className="truncate text-gray-600">{row.name}</div>
+        <div className="text-right font-medium">{fmt(row.price)}</div>
+        <div className={"text-right " + (row.change >= 0 ? "text-green-600" : "text-rose-600")}>
+          {(row.change > 0 ? "+" : "") + row.change + "%"}
+        </div>
+        <div className="text-right">
+          <button className="rounded-lg border px-2 py-1 text-xs hover:bg-white">Trade</button>
+        </div>
+      </div>
+    );
+  }
+
+  function Login() {
+    return (
+      <div className="min-h-screen grid place-items-center bg-gradient-to-b from-rose-50 to-white">
+        <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-xl">
+          <div className="text-center mb-4">
+            <div className="text-3xl font-black tracking-tight">
+              Welcome to <span className="text-rose-700">Z</span>eno
+            </div>
+            <div className="text-gray-500 text-sm">Personal AI Investment Advisor</div>
+          </div>
+          <label className="block text-sm font-medium">Email</label>
+          <input className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="you@finance.com" />
+          <label className="block text-sm font-medium mt-3">Password</label>
+          <input className="mt-1 w-full rounded-xl border px-3 py-2" type="password" placeholder="••••••••" />
+          <button onClick={function(){ setRoute("dashboard"); }} className="mt-5 w-full rounded-xl bg-rose-600 text-white py-2.5 font-semibold shadow hover:bg-rose-700">Sign in</button>
+          <div className="mt-3 text-center">
+            <button onClick={function(){ alert("SSO coming soon"); }} className="text-sm text-rose-700 hover:underline">Sign in with SSO</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function Dashboard() {
+    return (
+      <div className="min-h-[calc(100vh-64px)]">
+        <div className={container + " grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6 py-6"}>
+          <Sidebar />
+          <main className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Kpi label="Total Balance" value="$124,920" sub="+7.4% YTD" />
+              <Kpi label="Cash Available" value="$8,400" sub="Sweep enabled" />
+              <Kpi label="Risk Score" value="Moderate (58)" sub="Hybrid core + satellites" />
+              <Kpi label="Tax Savings YTD" value="$1,240" sub="Loss harvesting" />
+            </div>
+
+            <section className={card}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Smart Alerts</h3>
+                <button onClick={function(){ setRoute("alerts"); }} className="text-sm rounded-lg border px-3 py-1 hover:bg-gray-50">View all</button>
+              </div>
+              <ul className="mt-3 divide-y">
+                {alerts.map(function(a){
+                  return (
+                    <li key={a.id} className="py-2 flex items-start gap-2">
+                      <span>{a.severity === "high" ? "🔴" : (a.severity === "med" ? "🟠" : "🟢")}</span>
+                      <span className="text-sm text-gray-700">{a.text}</span>
+                      <div className="ml-auto flex gap-2">
+                        <button onClick={function(){ alert("Simulating hedge…"); }} className="rounded-lg border px-3 py-1 text-xs hover:bg-white">Simulate</button>
+                        <button onClick={function(){ alert("One-tap rebalanced (demo)"); }} className="rounded-lg border px-3 py-1 text-xs hover:bg-white">Proceed</button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+
+            <section className={card}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Watchlist</h3>
+                <button
+                  className="text-sm rounded-lg border px-3 py-1 hover:bg-gray-50"
+                  onClick={function(){
+                    var symbol = prompt("Add symbol (e.g., AAPL)");
+                    if (!symbol) return;
+                    setWatchlist(function(w){
+                      return w.concat([{ symbol: symbol.toUpperCase(), name: "Custom", price: 0, change: 0 }]);
+                    });
+                  }}
+                >+ Add</button>
+              </div>
+              <div className="mt-2 grid grid-cols-1">
+                <div className="grid grid-cols-5 text-xs text-gray-400 px-3 py-1">
+                  <div>Symbol</div><div>Name</div><div className="text-right">Price</div><div className="text-right">Change</div><div className="text-right">Action</div>
+                </div>
+                <div className="divide-y">
+                  {watchlist.map(function(r, i){ return <WatchRow key={r.symbol + i} row={r} i={i} />; })}
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  const Routed = useMemo(function(){
+    if (route === "login") return <Login />;
+    return (
+      <div className={theme === "dark" ? "dark" : ""}>
+        <div className="min-h-screen bg-white text-gray-900">
+          <Header />
+          {route === "dashboard" ? <Dashboard /> : null}
+        </div>
+      </div>
+    );
+  }, [route, theme, projectName, watchlist, alerts]);
+
+  return Routed;
+}
+
+createRoot(document.getElementById("root")).render(<ZenoApp />);
