@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 
 function ZenoApp() {
-  const [route, setRoute] = useState("login");
+  const [route, setRoute] = useState("dashboard");  // default after login
   const [theme, setTheme] = useState("light");
   const [projectName, setProjectName] = useState("Zeno");
   const [watchlist, setWatchlist] = useState([
@@ -11,7 +11,7 @@ function ZenoApp() {
     { symbol: "BTC", name: "Bitcoin", price: 61234, change: 1.8 },
     { symbol: "ETH", name: "Ethereum", price: 2725, change: -0.7 },
   ]);
-  const [alerts] = useState([
+  const [alerts, setAlerts] = useState([
     { id: 1, text: "BTC drawdown risk > 12% in 2 weeks — propose hedge + DCA", severity: "high" },
     { id: 2, text: "Rebalance drift 6.2% vs target — 1-tap fix available", severity: "med" },
     { id: 3, text: "Tax-loss opportunity: QQQ lot from 2025-08-05", severity: "low" },
@@ -28,30 +28,29 @@ function ZenoApp() {
 
   const container = "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8";
   const card = "rounded-2xl border border-gray-200 shadow-sm p-4 bg-white hover:shadow transition";
-
-  function chip(txt) {
-    return <span className="rounded-full border px-2 py-0.5 text-xs font-medium">{txt}</span>;
-  }
-  function switchTheme() { setTheme(theme === "light" ? "dark" : "light"); }
-  function fmt(n) { return typeof n === "number" ? n.toLocaleString() : n; }
+  const fmt = (n) => (typeof n === "number" ? n.toLocaleString() : n);
 
   function Header() {
     return (
       <header className="sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white border-b">
         <div className={container + " flex items-center gap-3 py-3"}>
-          <button onClick={function(){ setRoute("dashboard"); }} className="text-xl md:text-2xl font-black tracking-tight">
+          <button onClick={() => setRoute("dashboard")} className="text-xl md:text-2xl font-black tracking-tight">
             <span className="inline-block mr-2 text-rose-700">Z</span>eno
           </button>
           <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
-            {chip("Personal AI Advisor")}
-            {chip("Hybrid: passive + active")}
-            {chip("Proactive alerts")}
+            <span className="rounded-full border px-2 py-0.5 text-xs font-medium">Personal AI Advisor</span>
+            <span className="rounded-full border px-2 py-0.5 text-xs font-medium">Hybrid: passive + active</span>
+            <span className="rounded-full border px-2 py-0.5 text-xs font-medium">Proactive alerts</span>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <button onClick={switchTheme} className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-50" title="Toggle theme">
+            <button
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-50"
+              title="Toggle theme"
+            >
               {theme === "light" ? "🌞 Light" : "🌙 Dark"}
             </button>
-            <button onClick={function(){ setRoute("settings"); }} className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-50">
+            <button onClick={() => setRoute("settings")} className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-50">
               Settings
             </button>
           </div>
@@ -64,24 +63,22 @@ function ZenoApp() {
     return (
       <aside className="w-full md:w-64 border-r bg-gray-50/60 p-3 md:p-4">
         <div className="space-y-1">
-          {nav.map(function(n){
-            return (
-              <button
-                key={n.id}
-                onClick={function(){ setRoute(n.id); }}
-                className={
-                  "w-full flex items-center gap-2 rounded-xl px-3 py-2 text-left hover:bg-white border " +
-                  (route === n.id ? "bg-white border-rose-200" : "border-transparent")
-                }
-              >
-                <span className="text-lg" aria-hidden>{n.icon}</span>
-                <span className="font-medium">{n.label}</span>
-              </button>
-            );
-          })}
+          {nav.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => setRoute(n.id)}
+              className={
+                "w-full flex items-center gap-2 rounded-xl px-3 py-2 text-left hover:bg-white border " +
+                (route === n.id ? "bg-white border-rose-200" : "border-transparent")
+              }
+            >
+              <span className="text-lg" aria-hidden>{n.icon}</span>
+              <span className="font-medium">{n.label}</span>
+            </button>
+          ))}
         </div>
         <div className="mt-5">
-          <button onClick={function(){ setRoute("sim"); }} className="w-full rounded-xl bg-rose-600 text-white py-2.5 font-semibold shadow hover:bg-rose-700">
+          <button onClick={() => setRoute("sim")} className="w-full rounded-xl bg-rose-600 text-white py-2.5 font-semibold shadow hover:bg-rose-700">
             Proceed — Run Scenario
           </button>
         </div>
@@ -89,23 +86,22 @@ function ZenoApp() {
     );
   }
 
-  function Kpi(props) {
+  function Kpi({ label, value, sub }) {
     return (
       <div className={card}>
-        <div className="text-sm text-gray-500">{props.label}</div>
-        <div className="text-2xl font-bold">{props.value}</div>
-        {props.sub ? <div className="text-xs text-gray-400 mt-1">{props.sub}</div> : null}
+        <div className="text-sm text-gray-500">{label}</div>
+        <div className="text-2xl font-bold">{value}</div>
+        {sub ? <div className="text-xs text-gray-400 mt-1">{sub}</div> : null}
       </div>
     );
   }
 
-  function WatchRow(props) {
-    var row = props.row;
+  function WatchRow({ row }) {
     return (
       <div
         className="grid grid-cols-5 items-center gap-2 rounded-xl px-3 py-2 hover:bg-gray-50"
         role="button"
-        onClick={function(){ alert("Open " + row.symbol + " details"); }}
+        onClick={() => alert("Open " + row.symbol + " details")}
       >
         <div className="font-mono">{row.symbol}</div>
         <div className="truncate text-gray-600">{row.name}</div>
@@ -120,29 +116,7 @@ function ZenoApp() {
     );
   }
 
-  function Login() {
-    return (
-      <div className="min-h-screen grid place-items-center bg-gradient-to-b from-rose-50 to-white">
-        <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-xl">
-          <div className="text-center mb-4">
-            <div className="text-3xl font-black tracking-tight">
-              Welcome to <span className="text-rose-700">Z</span>eno
-            </div>
-            <div className="text-gray-500 text-sm">Personal AI Investment Advisor</div>
-          </div>
-          <label className="block text-sm font-medium">Email</label>
-          <input className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="you@finance.com" />
-          <label className="block text-sm font-medium mt-3">Password</label>
-          <input className="mt-1 w-full rounded-xl border px-3 py-2" type="password" placeholder="••••••••" />
-          <button onClick={function(){ setRoute("dashboard"); }} className="mt-5 w-full rounded-xl bg-rose-600 text-white py-2.5 font-semibold shadow hover:bg-rose-700">Sign in</button>
-          <div className="mt-3 text-center">
-            <button onClick={function(){ alert("SSO coming soon"); }} className="text-sm text-rose-700 hover:underline">Sign in with SSO</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // --- Pages ---
   function Dashboard() {
     return (
       <div className="min-h-[calc(100vh-64px)]">
@@ -159,21 +133,19 @@ function ZenoApp() {
             <section className={card}>
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Smart Alerts</h3>
-                <button onClick={function(){ setRoute("alerts"); }} className="text-sm rounded-lg border px-3 py-1 hover:bg-gray-50">View all</button>
+                <button onClick={() => setRoute("alerts")} className="text-sm rounded-lg border px-3 py-1 hover:bg-gray-50">View all</button>
               </div>
               <ul className="mt-3 divide-y">
-                {alerts.map(function(a){
-                  return (
-                    <li key={a.id} className="py-2 flex items-start gap-2">
-                      <span>{a.severity === "high" ? "🔴" : (a.severity === "med" ? "🟠" : "🟢")}</span>
-                      <span className="text-sm text-gray-700">{a.text}</span>
-                      <div className="ml-auto flex gap-2">
-                        <button onClick={function(){ alert("Simulating hedge…"); }} className="rounded-lg border px-3 py-1 text-xs hover:bg-white">Simulate</button>
-                        <button onClick={function(){ alert("One-tap rebalanced (demo)"); }} className="rounded-lg border px-3 py-1 text-xs hover:bg-white">Proceed</button>
-                      </div>
-                    </li>
-                  );
-                })}
+                {alerts.map((a) => (
+                  <li key={a.id} className="py-2 flex items-start gap-2">
+                    <span>{a.severity === "high" ? "🔴" : a.severity === "med" ? "🟠" : "🟢"}</span>
+                    <span className="text-sm text-gray-700">{a.text}</span>
+                    <div className="ml-auto flex gap-2">
+                      <button onClick={() => alert("Simulating hedge…")} className="rounded-lg border px-2 py-1 text-xs hover:bg-white">Simulate</button>
+                      <button onClick={() => alert("One-tap rebalanced (demo)")} className="rounded-lg border px-2 py-1 text-xs hover:bg-white">Proceed</button>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </section>
 
@@ -182,12 +154,10 @@ function ZenoApp() {
                 <h3 className="text-lg font-semibold">Watchlist</h3>
                 <button
                   className="text-sm rounded-lg border px-3 py-1 hover:bg-gray-50"
-                  onClick={function(){
-                    var symbol = prompt("Add symbol (e.g., AAPL)");
+                  onClick={() => {
+                    const symbol = prompt("Add symbol (e.g., AAPL)");
                     if (!symbol) return;
-                    setWatchlist(function(w){
-                      return w.concat([{ symbol: symbol.toUpperCase(), name: "Custom", price: 0, change: 0 }]);
-                    });
+                    setWatchlist((w) => w.concat([{ symbol: symbol.toUpperCase(), name: "Custom", price: 0, change: 0 }]));
                   }}
                 >+ Add</button>
               </div>
@@ -196,7 +166,7 @@ function ZenoApp() {
                   <div>Symbol</div><div>Name</div><div className="text-right">Price</div><div className="text-right">Change</div><div className="text-right">Action</div>
                 </div>
                 <div className="divide-y">
-                  {watchlist.map(function(r, i){ return <WatchRow key={r.symbol + i} row={r} i={i} />; })}
+                  {watchlist.map((r, i) => <WatchRow key={r.symbol + i} row={r} />)}
                 </div>
               </div>
             </section>
@@ -206,19 +176,194 @@ function ZenoApp() {
     );
   }
 
-  const Routed = useMemo(function(){
-    if (route === "login") return <Login />;
+  function Portfolio() {
     return (
-      <div className={theme === "dark" ? "dark" : ""}>
-        <div className="min-h-screen bg-white text-gray-900">
-          <Header />
-          {route === "dashboard" ? <Dashboard /> : null}
-        </div>
+      <div className={container + " py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6"}>
+        <Sidebar />
+        <main className="space-y-4">
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Allocation</h3>
+            <p className="text-sm text-gray-600 mt-1">Core passive ETFs with active satellites.</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-sm">
+              <div className="rounded-xl border p-3"><div className="font-medium">US Equity</div><div>40% → 43%</div></div>
+              <div className="rounded-xl border p-3"><div className="font-medium">Intl Equity</div><div>20% → 18%</div></div>
+              <div className="rounded-xl border p-3"><div className="font-medium">Bonds</div><div>25% → 24%</div></div>
+              <div className="rounded-xl border p-3"><div className="font-medium">Crypto</div><div>5% → 7%</div></div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Rebalance simulated")}>Simulate Rebalance</button>
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Rebalance executed (demo)")}>Proceed</button>
+            </div>
+          </div>
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Holdings</h3>
+            <ul className="mt-2 text-sm text-gray-700 space-y-1">
+              <li>VTI — 28% — $34,920</li>
+              <li>VXUS — 14% — $17,430</li>
+              <li>BND — 20% — $24,800</li>
+              <li>IBIT — 4% — $4,996</li>
+              <li>Cash — 6% — $7,474</li>
+            </ul>
+          </div>
+        </main>
       </div>
     );
-  }, [route, theme, projectName, watchlist, alerts]);
+  }
 
-  return Routed;
+  function Sim() {
+    return (
+      <div className={container + " py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6"}>
+        <Sidebar />
+        <main className="space-y-4">
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Scenario Simulator</h3>
+            <p className="text-sm text-gray-600">Run predictions with signals and neural nets.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              <div>
+                <label className="text-sm font-medium">Projection Horizon</label>
+                <select className="mt-1 w-full rounded-xl border px-3 py-2">
+                  <option>1 week</option><option>3 weeks</option><option>3 months</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Risk Appetite</label>
+                <select className="mt-1 w-full rounded-xl border px-3 py-2">
+                  <option>Conservative</option><option>Moderate</option><option>Aggressive</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Budget</label>
+                <input className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="$5,000" />
+              </div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Running models…")}>Run Models</button>
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Trade package prepared")}>Proceed</button>
+            </div>
+          </div>
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Proposed Package (demo)</h3>
+            <ul className="mt-2 text-sm text-gray-700 space-y-1">
+              <li>Buy: SCHD — $2,000</li>
+              <li>Buy: VXUS — $1,500</li>
+              <li>Hedge: BTC with 10% trailing stop</li>
+              <li>Sell: QQQ lot (TLH)</li>
+            </ul>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  function TaxRet() {
+    return (
+      <div className={container + " py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6"}>
+        <Sidebar />
+        <main className="space-y-4">
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Tax Optimization</h3>
+            <p className="text-sm text-gray-600">Automated loss harvesting (demo).</p>
+            <div className="mt-2 flex gap-2">
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Scanning lots…")}>Scan Lots</button>
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Swap to correlated ETF")}>Proceed</button>
+            </div>
+          </div>
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Retirement Planner</h3>
+            <p className="text-sm text-gray-600">Glide-path overview (demo).</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              <input className="rounded-xl border px-3 py-2" placeholder="Current age" />
+              <input className="rounded-xl border px-3 py-2" placeholder="Retirement age" />
+              <input className="rounded-xl border px-3 py-2" placeholder="Monthly contribution" />
+            </div>
+            <div className="mt-3">
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Calculating glide-path…")}>Run Projection</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  function AlertsPage() {
+    return (
+      <div className={container + " py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6"}>
+        <Sidebar />
+        <main className="space-y-4">
+          <div className={card}>
+            <h3 className="text-lg font-semibold">All Alerts</h3>
+            <ul className="mt-2 list-disc pl-5 text-sm text-gray-700 space-y-1">
+              {alerts.map((a) => <li key={a.id}>{a.text}</li>)}
+            </ul>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  function Settings() {
+    return (
+      <div className={container + " py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6"}>
+        <Sidebar />
+        <main className="space-y-4">
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Project Settings</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+              <div>
+                <label className="text-sm font-medium">App Name</label>
+                <input
+                  className="mt-1 w-full rounded-xl border px-3 py-2"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Mode</label>
+                <select className="mt-1 w-full rounded-xl border px-3 py-2">
+                  <option>Personal (local-first)</option>
+                  <option>Team (cloud sync)</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Saved (demo)")}>Save</button>
+              <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Exported config (demo)")}>Export Config</button>
+            </div>
+          </div>
+          <div className={card}>
+            <h3 className="text-lg font-semibold">Data & Connectivity</h3>
+            <ul className="mt-2 text-sm text-gray-700 space-y-1">
+              <li>Local cache: enabled</li>
+              <li>Morning batch (7:30 AM): ready</li>
+              <li>API keys: placeholders set</li>
+            </ul>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // --- Router ---
+  function Routed() {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    return (
+      <div className="min-h-screen bg-white text-gray-900">
+        <Header />
+        {route === "dashboard" && <Dashboard />}
+        {route === "portfolio" && <Portfolio />}
+        {route === "sim" && <Sim />}
+        {route === "taxret" && <TaxRet />}
+        {route === "alerts" && <AlertsPage />}
+        {route === "settings" && <Settings />}
+      </div>
+    );
+  }
+
+  return <Routed />;
 }
 
 createRoot(document.getElementById("root")).render(<ZenoApp />);
