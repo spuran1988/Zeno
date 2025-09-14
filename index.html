@@ -232,3 +232,184 @@
           <Sidebar />
           <main className="space-y-4">
             <div className={card}>
+              <h3 className="text-lg font-semibold">Allocation</h3>
+              <p className="text-sm text-gray-600 mt-1">Core passive ETFs with active satellites. Target vs. actual drift shown below.</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-sm">
+                <div className="rounded-xl border p-3"><div className="font-medium">US Equity</div><div>40% → 43%</div></div>
+                <div className="rounded-xl border p-3"><div className="font-medium">Intl Equity</div><div>20% → 18%</div></div>
+                <div className="rounded-xl border p-3"><div className="font-medium">Bonds</div><div>25% → 24%</div></div>
+                <div className="rounded-xl border p-3"><div className="font-medium">Crypto</div><div>5% → 7%</div></div>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Rebalance simulated")}>Simulate Rebalance</button>
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Rebalance executed (demo)")}>Proceed</button>
+              </div>
+            </div>
+            <div className={card}>
+              <h3 className="text-lg font-semibold">Holdings</h3>
+              <ul className="mt-2 text-sm text-gray-700 space-y-1">
+                <li>VTI — 28% — $34,920</li>
+                <li>VXUS — 14% — $17,430</li>
+                <li>BND — 20% — $24,800</li>
+                <li>IBIT — 4% — $4,996</li>
+                <li>Cash — 6% — $7,474</li>
+              </ul>
+            </div>
+          </main>
+        </div>
+      );
+
+      const Sim = () => (
+        <div className={\`\${container} py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6\`}>
+          <Sidebar />
+          <main className="space-y-4">
+            <div className={card}>
+              <h3 className="text-lg font-semibold">Scenario Simulator</h3>
+              <p className="text-sm text-gray-600">Run active predictions with macro/micro signals and neural nets. Outputs: p(up ≥ X%), suggested trades, confidence.</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                <div>
+                  <label className="text-sm font-medium">Projection Horizon</label>
+                  <select className="mt-1 w-full rounded-xl border px-3 py-2">
+                    <option>1 week</option>
+                    <option>3 weeks</option>
+                    <option>3 months</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Risk Appetite</label>
+                  <select className="mt-1 w-full rounded-xl border px-3 py-2">
+                    <option>Conservative</option>
+                    <option>Moderate</option>
+                    <option>Aggressive</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Budget</label>
+                  <input className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="$5,000" />
+                </div>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Running models…")}>Run Models</button>
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Trade package prepared")}>Proceed</button>
+              </div>
+            </div>
+            <div className={card}>
+              <h3 className="text-lg font-semibold">Proposed Package (demo)</h3>
+              <ul className="mt-2 text-sm text-gray-700 space-y-1">
+                <li>Buy: SCHD — $2,000 — p(↑ ≥ 5% in 3w) = 0.63</li>
+                <li>Buy: VXUS — $1,500 — p(↑ ≥ 4% in 3w) = 0.58</li>
+                <li>Hedge: BTC with 10% trailing stop</li>
+                <li>Sell: QQQ lot (TLH) — offset gains $420</li>
+              </ul>
+            </div>
+          </main>
+        </div>
+      );
+
+      const TaxRet = () => (
+        <div className={\`\${container} py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6\`}>
+          <Sidebar />
+          <main className="space-y-4">
+            <div className={card}>
+              <h3 className="text-lg font-semibold">Tax Optimization</h3>
+              <p className="text-sm text-gray-600">Automated tax-loss harvesting and asset location (demo).</p>
+              <div className="mt-2 flex gap-2">
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Scanning lots…")}>Scan Lots</button>
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Swapping to correlated ETF (wash-sale safe)")}>Proceed</button>
+              </div>
+            </div>
+            <div className={card}>
+              <h3 className="text-lg font-semibold">Retirement Planner</hh3>
+              <p className="text-sm text-gray-600">Roth/Traditional IRA, 401(k) projections and glide-path (demo).</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                <input className="rounded-xl border px-3 py-2" placeholder="Current age" />
+                <input className="rounded-xl border px-3 py-2" placeholder="Retirement age" />
+                <input className="rounded-xl border px-3 py-2" placeholder="Monthly contribution" />
+              </div>
+              <div className="mt-3">
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Calculating glide-path…")}>Run Projection</button>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+
+      const AlertsPage = () => (
+        <div className={\`\${container} py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6\`}>
+          <Sidebar />
+          <main className="space-y-4">
+            <div className={card}>
+              <h3 className="text-lg font-semibold">All Alerts</h3>
+              <ul className="mt-2 list-disc pl-5 text-sm text-gray-700 space-y-1">
+                {alerts.map((a) => <li key={a.id}>{a.text}</li>)}
+              </ul>
+            </div>
+          </main>
+        </div>
+      );
+
+      const Settings = () => (
+        <div className={\`\${container} py-6 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6\`}>
+          <Sidebar />
+          <main className="space-y-4">
+            <div className={card}>
+              <h3 className="text-lg font-semibold">Project Settings</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                <div>
+                  <label className="text-sm font-medium">App Name</label>
+                  <input
+                    className="mt-1 w-full rounded-xl border px-3 py-2"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Mode</label>
+                  <select className="mt-1 w-full rounded-xl border px-3 py-2">
+                    <option>Personal (local-first)</option>
+                    <option>Team (cloud sync)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Saved (demo)")}>Save</button>
+                <button className="rounded-lg border px-3 py-1 text-sm" onClick={() => alert("Exported config (demo)")}>Export Config</button>
+              </div>
+            </div>
+            <div className={card}>
+              <h3 className="text-lg font-semibold">Data & Connectivity</h3>
+              <ul className="mt-2 text-sm text-gray-700 space-y-1">
+                <li>Local cache: enabled</li>
+                <li>Morning batch (7:30 AM): ready</li>
+                <li>API keys: placeholders set</li>
+              </ul>
+            </div>
+          </main>
+        </div>
+      );
+
+      const Routed = useMemo(() => {
+        if (route === "login") return <Login />;
+        return (
+          <div className={theme === "dark" ? "dark" : ""}>
+            <div className="min-h-screen bg-white text-gray-900">
+              <Header />
+              {route === "dashboard" && <Dashboard />}
+              {route === "portfolio" && <Portfolio />}
+              {route === "sim" && <Sim />}
+              {route === "taxret" && <TaxRet />}
+              {route === "alerts" && <AlertsPage />}
+              {route === "settings" && <Settings />}
+            </div>
+          </div>
+        );
+      }, [route, theme, projectName, watchlist, alerts]);
+
+      return Routed;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<ZenoApp />);
+  </script>
+</body>
+</html>
+
