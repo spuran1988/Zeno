@@ -116,7 +116,7 @@
         <div
           className="grid grid-cols-5 items-center gap-2 rounded-xl px-3 py-2 hover:bg-gray-50"
           role="button"
-          onClick={() => alert(\`Open \${row.symbol} details\`)}
+          onClick={function() { alert("Open " + row.symbol + " details"); }}
         >
           <div className="font-mono">{row.symbol}</div>
           <div className="truncate text-gray-600">{row.name}</div>
