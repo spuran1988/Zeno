@@ -18,25 +18,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           npm init -y
-          npm i -D tailwindcss @tailwindcss/cli esbuild react react-dom
+          npm install -D tailwindcss @tailwindcss/cli esbuild react react-dom
 
       - name: Build CSS (Tailwind)
         run: npx tailwindcss -c tailwind.config.js -i src/input.css -o app.css --minify
 
       - name: Build JS (esbuild)
         run: npx esbuild app.jsx --bundle --minify --format=iife --outfile=app.js --jsx=automatic
+
+      - name: Check build output
+        run: |
+          ls -la
+          if [ ! -f app.js ]; then echo "Error: app.js missing" && exit 1; fi
+          if [ ! -f app.css ]; then echo "Error: app.css missing" && exit 1; fi
 
       - name: Disable Jekyll
         run: touch .nojekyll
