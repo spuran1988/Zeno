@@ -1,4 +1,4 @@
-name: Deploy static site to GitHub Pages
+name: Build & Deploy Zeno (Pages)
 
 on:
   push:
@@ -20,8 +20,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Disable Jekyll (serve files as-is)
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: |
+          npm init -y
+          npm i -D tailwindcss @tailwindcss/cli esbuild react react-dom
+
+      - name: Build CSS (Tailwind)
+        run: npx tailwindcss -c tailwind.config.js -i src/input.css -o app.css --minify
+
+      - name: Build JS (esbuild)
+        run: npx esbuild app.jsx --bundle --minify --format=iife --outfile=app.js --jsx=automatic
+
+      - name: Disable Jekyll
         run: touch .nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
